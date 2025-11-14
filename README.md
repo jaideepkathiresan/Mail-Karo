@@ -1,7 +1,7 @@
 # 💌 Mail Karo - AI Email Assistant
 ![Banner](https://github.com/Code-By-Adarsh/Mail-Karo/blob/9bb438725f2a88d4aa13d212b62874c61a73333d/All%20Images/Banner.png)
 <br>
-# 🇮🇳 India’s First AI Email Assistant— **Mail Karo**
+# 🇮🇳 India’s First AI Email Assistant — **Mail Karo**
 
 **Mail Karo** is a community-driven AI SaaS platform that makes email writing effortless.  
 It helps users **generate**, **send**, and **analyze** emails with smart automation — built with the vision of creating India’s most powerful AI-based email productivity tool.
