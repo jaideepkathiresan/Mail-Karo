@@ -27,6 +27,17 @@ Every contribution counts. ❤️
 ```
 ---
 
+## 📸 Email Generation Preview
+Below are the actual screenshots of Mail Karo’s email generation — from user prompt to final AI-crafted email.
+
+### Email Prompt
+![Prompt Screenshot](https://github.com/Code-By-Adarsh/Mail-Karo/blob/1b1e7551d6d940b48c0d2aeecd2c940be3360c7f/All%20Images/Sample_email_propmt.jpg)
+
+### Email Output
+![Email Output Screenshot](https://github.com/Code-By-Adarsh/Mail-Karo/blob/1b1e7551d6d940b48c0d2aeecd2c940be3360c7f/All%20Images/Sample_email_output.jpg)
+
+---
+
 ## 🚀 Features
 
 - ✍️ AI Email Writing (using Google Gemini API)
