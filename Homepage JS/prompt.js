@@ -4,8 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const outputText = document.getElementById("outputText");
   const copyBtn = document.getElementById("copyBtn");
 
-  // 🔥 Auto-expand textarea
+  // ⭐ Set initial button state
+  generateBtn.innerText = "⚡ Generate";
+
+  // ⭐ Reset button when user types again
   promptInput.addEventListener("input", () => {
+    generateBtn.innerText = "⚡ Generate";
+
+    // Auto-expand textarea
     promptInput.style.height = "auto";
     promptInput.style.height = promptInput.scrollHeight + "px";
   });
@@ -21,6 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     outputText.style.color = "#EAEAEA";
+
+    // ⭐ Change button to "Generating"
+    generateBtn.innerText = "🔄 Generating…";
 
     if (!document.getElementById("email-spinner-style")) {
       const s = document.createElement("style");
@@ -82,6 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
         outputText.classList.remove("loading");
         outputText.style.color = "#EAEAEA";
         outputText.innerText = data.email;
+
+        // ⭐ SUCCESS STATE
+        generateBtn.innerText = "✨ Generated!";
       } else {
         throw new Error("Invalid response from server");
       }
@@ -91,6 +103,10 @@ document.addEventListener("DOMContentLoaded", () => {
         err.message || "Failed to generate email. Please try again."
       }`;
       outputText.style.color = "#FF6B6B";
+
+      // ❌ ERROR STATE
+      generateBtn.innerText = "❌ Try Again";
+
       console.error("❌ Fetch Error:", err);
     }
   });
