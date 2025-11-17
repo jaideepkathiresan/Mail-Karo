@@ -4,6 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const outputText = document.getElementById("outputText");
   const copyBtn = document.getElementById("copyBtn");
 
+  // 🔥 Auto-expand textarea
+  promptInput.addEventListener("input", () => {
+    promptInput.style.height = "auto";
+    promptInput.style.height = promptInput.scrollHeight + "px";
+  });
+
   // 👇 async function
   generateBtn.addEventListener("click", async () => {
     const prompt = promptInput.value.trim();
@@ -15,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     outputText.style.color = "#EAEAEA";
-    // show spinner + message until response replaces it
+
     if (!document.getElementById("email-spinner-style")) {
       const s = document.createElement("style");
       s.id = "email-spinner-style";
@@ -29,11 +35,11 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
       document.head.appendChild(s);
     }
+
     outputText.innerHTML =
-      '<span class="email-spinner" aria-hidden="true"></span><span>✉️ Generating your email...</span>';
+      '<span class="email-spinner"></span><span>✉️ Generating your email...</span>';
     outputText.classList.add("loading");
 
-    // disable inputs and style button
     generateBtn.disabled = true;
     promptInput.disabled = true;
     generateBtn.dataset.prevBg = generateBtn.style.backgroundColor || "";
@@ -41,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     generateBtn.style.backgroundColor = "#FFD700";
     generateBtn.style.cursor = "not-allowed";
 
-    // re-enable when spinner/loading class is removed
     const observer = new MutationObserver((mutationsList) => {
       for (const m of mutationsList) {
         if (m.type === "attributes" && m.attributeName === "class") {
@@ -50,8 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
             promptInput.disabled = false;
             generateBtn.style.backgroundColor = generateBtn.dataset.prevBg;
             generateBtn.style.cursor = generateBtn.dataset.prevCursor;
-            delete generateBtn.dataset.prevBg;
-            delete generateBtn.dataset.prevCursor;
             observer.disconnect();
             break;
           }
@@ -60,10 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     observer.observe(outputText, { attributes: true, attributeFilter: ["class"] });
 
-    // 📨 Fetch request to backend
     try {
-      // 🔗 Connect to local backend API
       const API_URL = "https://mail-karo.onrender.com/api/generate-email";
+
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
