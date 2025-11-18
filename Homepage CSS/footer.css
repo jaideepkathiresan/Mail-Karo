@@ -1,7 +1,7 @@
 /* footer.css */
 
 .footer {
-  background: var(--bg-dark);
+  background: var(--bg);
   border-top: 1px solid rgba(255, 215, 0, 0.2);
   padding: 60px 20px 30px;
   color: var(--text);
@@ -33,11 +33,16 @@
   gap: 25px;
 }
 
+/* Logo */
 .footer-logo img {
   width: 60px;
   height: 60px;
   border-radius: 12px;
   filter: drop-shadow(0 0 12px rgba(255,215,0,0.3));
+}
+
+[data-theme="light"] .footer-logo img {
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.25));
 }
 
 .footer-logo h2 {
@@ -47,12 +52,14 @@
   margin-top: 8px;
 }
 
+/* Tagline */
 .footer-logo .tagline {
   font-size: 0.95rem;
-  color: var(--muted);
+  color: var(--text-muted);
   margin-top: 4px;
 }
 
+/* Footer Links */
 .footer-links {
   display: flex;
   gap: 30px;
@@ -99,8 +106,7 @@
   text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 }
 
-
-/* Footer Bottom (Premium Professional Design) */
+/* Footer Bottom */
 .footer-bottom {
   margin-top: 35px;
   border-top: 1px solid rgba(255, 215, 0, 0.15);
@@ -110,7 +116,7 @@
 
 .footer-info {
   font-size: 0.95rem;
-  color: #CFCFCF;
+  color: var(--text-muted);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -122,24 +128,24 @@
 
 /* Founder Highlight */
 .footer-info .founder {
-  color: #FFD700;
+  color: var(--accent);
   font-weight: 600;
 }
 
-/* "Made with ❤️ in India 🇮🇳" Highlight */
+/* "Made with ❤️ in India 🇮🇳" */
 .footer-info .made-in-india {
-  color: #FFD700;
+  color: var(--accent);
   font-weight: 600;
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }
 
-/* Normal copyright text */
+/* Copyright */
 .footer-info .copyright {
-  color: #888484;
+  color: var(--text-muted);
   font-weight: 500;
 }
 
-/* Responsive Footer Line */
+/* Responsive */
 @media (max-width: 600px) {
   .footer-info {
     font-size: 0.88rem;
@@ -148,7 +154,6 @@
   }
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .footer-links { gap: 15px; }
 }
