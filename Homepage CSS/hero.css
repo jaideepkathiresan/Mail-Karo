@@ -8,7 +8,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 40px;
+
+  /* Optimized padding */
+  padding: 30px 20px;
+
   position: relative;
   overflow: hidden;
 }
@@ -44,7 +47,6 @@
   text-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
 }
 
-/* Light mode title glow balanced */
 [data-theme="light"] .hero-title {
   text-shadow: 0 0 8px rgba(212, 175, 55, 0.15);
 }
@@ -108,7 +110,6 @@
   transition: opacity 1.2s ease, transform 1.2s ease;
 }
 
-/* Light mode softer glow */
 [data-theme="light"] .mailkaro-logo {
   filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.2));
 }
@@ -138,6 +139,10 @@
 
 /* Responsive */
 @media (max-width: 900px) {
+  .hero {
+    padding: 20px 15px; /* Mobile perfect fit */
+  }
+
   .hero-container {
     flex-direction: column-reverse;
     text-align: center;
@@ -159,4 +164,25 @@
   .mailkaro-logo {
     width: 220px;
   }
+}
+
+/* Light mode visibility fix for hero section */
+[data-theme="light"] .hero-title {
+  color: #000;
+}
+
+[data-theme="light"] .hero-title span {
+  color: #B8941F; /* darker accent */
+}
+
+[data-theme="light"] .hero-subtitle {
+  color: #333 !important;
+}
+
+[data-theme="light"] .hero-subtitle strong {
+  color: #000;
+}
+
+[data-theme="light"] .hero-btn {
+  color: #000;
 }
