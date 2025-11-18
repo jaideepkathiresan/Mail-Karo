@@ -256,6 +256,26 @@ document.addEventListener("DOMContentLoaded", () => {
     generateBtn.innerText = "⚡ Generate";
   });
 
+  /* =============================
+   MOBILE TEXTAREA AUTO-RESIZE FIX
+============================= */
+function autoResize() {
+  promptInput.style.height = "auto";
+  promptInput.style.height = promptInput.scrollHeight + "px";
+}
+
+// Normal desktop + android fix
+promptInput.addEventListener("input", autoResize);
+
+// Mobile Safari fix – force update every few ms while typing
+let lastVal = "";
+setInterval(() => {
+  if (promptInput.value !== lastVal) {
+    lastVal = promptInput.value;
+    autoResize();
+  }
+}, 200);
+
   // enable/disable
   function disableAll() {
     const els = [generateBtn, regenerateBtn, promptInput, toneSelect, templateSelect, copyBtn, resetBtn, saveTemplateBtn, openWizardBtn];
