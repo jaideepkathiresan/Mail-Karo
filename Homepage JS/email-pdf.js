@@ -1,4 +1,4 @@
-/* Mail Karo — FINAL PDF ENGINE (Yellow Theme + Watermark + Button Logic) */
+/* Mail Karo — FINAL PUBLIC URL PDF ENGINE */
 (function () {
   function ready(fn) {
     if (document.readyState !== "loading") fn();
@@ -11,180 +11,163 @@
     const previewBtn = document.getElementById("mkPdfPreviewBtn");
 
     if (!outEl || !downloadBtn || !previewBtn) {
-      console.warn("PDF widget missing elements");
+      console.warn("PDF section elements missing");
       return;
     }
 
-    /* --------------------------------------------------------------------
-       1) DISABLE BUTTONS INITIALLY + AUTO-SCROLL TO PROMPT
-    --------------------------------------------------------------------*/
-    function disableButtons() {
+    /* ----------------------------------------------------------
+       1) BUTTON STATE CONTROL
+    ---------------------------------------------------------- */
+    function disableBtns() {
       downloadBtn.disabled = true;
       previewBtn.disabled = true;
-
-      const handler = () => {
-        document.querySelector("#prompt")?.scrollIntoView({ behavior: "smooth" });
-      };
-
-      downloadBtn.addEventListener("click", handler, { once: true });
-      previewBtn.addEventListener("click", handler, { once: true });
+      downloadBtn.style.opacity = "0.5";
+      previewBtn.style.opacity = "0.5";
+      downloadBtn.style.cursor = "not-allowed";
+      previewBtn.style.cursor = "not-allowed";
     }
 
-    function enableButtons() {
+    function enableBtns() {
       downloadBtn.disabled = false;
       previewBtn.disabled = false;
+      downloadBtn.style.opacity = "1";
+      previewBtn.style.opacity = "1";
+      downloadBtn.style.cursor = "pointer";
+      previewBtn.style.cursor = "pointer";
     }
 
-    disableButtons();
+    disableBtns(); // start disabled
 
-    // Watch for new email generation
+
+    /* ----------------------------------------------------------
+       2) LIVE DETECTION — ENABLE BUTTONS WHEN EMAIL READY
+    ---------------------------------------------------------- */
     const observer = new MutationObserver(() => {
-      const text = outEl.innerText.trim();
+      const t = outEl.innerText.trim();
 
-      if (!text ||
-          text === "Your AI-generated email will appear here..." ||
-          text === "Generating email...") {
-        disableButtons();
+      if (
+        !t ||
+        t.includes("Your AI-generated email will appear here") ||
+        t.includes("Generating email") ||
+        t.length < 10
+      ) {
+        disableBtns();
       } else {
-        enableButtons();
+        enableBtns();
       }
     });
 
     observer.observe(outEl, { childList: true, subtree: true });
 
 
-    /* --------------------------------------------------------------------
-       2) LOAD jsPDF (Auto load)
-    --------------------------------------------------------------------*/
-    function ensureJsPdf() {
+    /* ----------------------------------------------------------
+       3) LOAD jsPDF
+    ---------------------------------------------------------- */
+    function loadJsPDF() {
       return new Promise((resolve, reject) => {
         if (window.jspdf) return resolve(window.jspdf.jsPDF);
 
         const s = document.createElement("script");
-        s.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-        s.onload = () => {
-          if (!window.jspdf) return reject("jsPDF not loaded");
-          resolve(window.jspdf.jsPDF);
-        };
+        s.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        s.onload = () => resolve(window.jspdf.jsPDF);
         s.onerror = () => reject("Failed to load jsPDF");
         document.head.appendChild(s);
       });
     }
 
-    /* --------------------------------------------------------------------
-       3) FILENAME — first 1-2 meaningful words
-    --------------------------------------------------------------------*/
-    function makeFilename(text) {
-      if (!text) return "email.pdf";
-      const words = text.trim().split(/\s+/).slice(0, 2).join("_");
-      return (words || "email") + ".pdf";
+
+    /* ----------------------------------------------------------
+       4) PUBLIC URL WATERMARK (SAFE)
+    ---------------------------------------------------------- */
+    const watermarkURL =
+      "https://mail-karo.netlify.app/All%20Images/Logo.png";
+
+    function loadWatermark() {
+      return fetch(watermarkURL)
+        .then((r) => r.blob())
+        .then(
+          (blob) =>
+            new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.readAsDataURL(blob);
+            })
+        )
+        .catch(() => null);
     }
 
 
-    /* --------------------------------------------------------------------
-       4) PDF Creator — Yellow Theme + Watermark
-    --------------------------------------------------------------------*/
-    async function createPdf({ preview = false } = {}) {
-      const content = outEl.innerText.trim();
-      if (!content) {
+    /* ----------------------------------------------------------
+       5) PDF CREATOR
+    ---------------------------------------------------------- */
+    async function createPdf({ preview = false }) {
+      const text = outEl.innerText.trim();
+      if (!text || text.includes("Generating")) {
         alert("Generate an email first.");
         return;
       }
 
-      const jsPDF = await ensureJsPdf();
+      const jsPDF = await loadJsPDF();
       const doc = new jsPDF({ unit: "pt", format: "a4" });
 
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
       const margin = 40;
-      const usable = pageW - margin * 2;
 
-      /* ---- WATERMARK LOGO (CHANGE PATH HERE) ---- */
-      const logoPath = "All Images/Detail logo.png"; // ⭐⭐⭐ CHANGE THIS PATH IF NEEDED ⭐⭐⭐
-
-      let watermarkImg = null;
-
-      try {
-        const blob = await fetch(logoPath).then(r => r.blob());
-        watermarkImg = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
-      } catch (err) {
-        console.warn("Watermark logo missing, continuing without watermark.");
-      }
-
-      /* ---- TITLE (Yellow) ---- */
-      const title = content.split("\n")[0] || "Mail Karo Email";
-
-      doc.setFontSize(18);
-      doc.setTextColor(250, 204, 21); // MAIL KARO YELLOW THEME (#FACC15)
-      doc.text(title, margin, 60);
-
-      /* ---- BODY ---- */
-      const body = doc.splitTextToSize(content, usable);
+      /* Body text */
+      const body = doc.splitTextToSize(text, pageW - margin * 2);
+      let y = 40;
 
       doc.setFontSize(12);
-      doc.setTextColor(60, 50, 20); // warm grey for yellow theme
+      doc.setTextColor(40, 40, 40);
 
-      let cursor = 100;
-
-      for (let line of body) {
-        if (cursor > pageH - 80) {
+      body.forEach((line) => {
+        if (y > pageH - 60) {
           doc.addPage();
-          cursor = 60;
+          y = 40;
         }
+        doc.text(line, margin, y);
+        y += 16;
+      });
 
-        doc.text(line, margin, cursor);
-        cursor += 16;
-      }
+      /* Watermark */
+      const watermark = await loadWatermark();
+      if (watermark) {
+        const pages = doc.getNumberOfPages();
 
-      /* ---- WATERMARK ON EVERY PAGE ---- */
-      if (watermarkImg) {
-        const total = doc.getNumberOfPages();
-
-        for (let i = 1; i <= total; i++) {
-          doc.setPage(i);
-
-          doc.setGState(doc.GState({ opacity: 0.10 })); // 10% opacity watermark
-
-          const wmW = 280;
-          const wmH = 280;
-
+        for (let p = 1; p <= pages; p++) {
+          doc.setPage(p);
           doc.addImage(
-            watermarkImg,
+            watermark,
             "PNG",
-            (pageW - wmW) / 2,
-            (pageH - wmH) / 2,
-            wmW,
-            wmH
+            (pageW - 260) / 2,
+            (pageH - 260) / 2,
+            260,
+            260,
+            "",
+            "NONE",
+            0.15 // opacity
           );
-
-          doc.setGState(doc.GState({ opacity: 1 }));
         }
       }
 
-      /* ---- FOOTER ---- */
+      /* Footer */
       doc.setFontSize(10);
-      doc.setTextColor(180, 160, 60); // golden grey footer
-
+      doc.setTextColor(160, 140, 40);
       doc.text("Generated by Mail Karo", margin, pageH - 30);
 
-      /* ---- Save or Preview ---- */
-      const filename = makeFilename(title);
-
+      /* Save or Preview */
       if (preview) {
         window.open(doc.output("bloburl"), "_blank");
       } else {
-        doc.save(filename);
+        doc.save("MailKaro_Email.pdf");
       }
     }
 
-
-    /* --------------------------------------------------------------------
-       5) BUTTON HANDLERS
-    --------------------------------------------------------------------*/
+    /* ----------------------------------------------------------
+       6) BUTTON EVENTS
+    ---------------------------------------------------------- */
     downloadBtn.onclick = () => createPdf({ preview: false });
     previewBtn.onclick = () => createPdf({ preview: true });
   });
