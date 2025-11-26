@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const toneSelect = $("toneSelect");
   const lengthSelect = $("lengthSelect");
 
+  // ⭐ NEW: Language Selector added
+  const languageSelect = $("languageSelect");
 
   const templateSelect = $("templateSelect");
   const saveTemplateBtn = $("saveTemplateBtn");
@@ -25,19 +27,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const wizardFinishBtn = $("wizardFinishBtn");
   const wizardProgressText = $("wizardProgressText");
 
-  // if essential elements missing, log and abort gracefully
   if (!generateBtn || !promptInput || !outputText) {
     console.error("Essential prompt elements missing. Aborting prompt.js init.");
     return;
   }
 
-  // ---------- state ----------
   let lastPrompt = "";
   let lastTone = "";
 
   generateBtn.innerText = "⚡ Generate";
 
-  // ---------- template skeletons (with placeholders) ----------
+  // ---------- template skeletons ----------
   const templateSkeletons = {
     job:
       "Hello {{recipientName}},\n\nI am writing to apply for the {{position}} position at {{company}}. My key highlights: {{resumeHighlights}}.\nWhy I'm a fit: {{whyFit}}.\n\nSincerely,\n{{senderName}}",
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "Hello {{recipientName}},\n\nFeedback on {{topic}}:\nWhat worked: {{positives}}\nCould improve: {{improvements}}\nSeverity: {{severity}}\n\nThanks,\n{{senderName}}"
   };
 
-  // ---------- fields per template (complete 15) ----------
+  // fields per template
   const templateFields = {
     job: [
       { key: "recipientName", label: "Recipient name" },
@@ -189,18 +189,19 @@ document.addEventListener("DOMContentLoaded", () => {
     ]
   };
 
-  // utility: chunk array into steps (n fields per step)
   const chunk = (arr, size) => {
     const out = [];
-    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    for (let i = 0; i < arr.length; i += size)
+      out.push(arr.slice(i, i + size));
     return out;
   };
 
-  // ---------- Saved templates loader ----------
   function loadSavedTemplates() {
     if (!savedGroup) return;
     savedGroup.innerHTML = "";
-    const saved = JSON.parse(localStorage.getItem("mailKaroSavedTemplates") || "[]");
+    const saved = JSON.parse(
+      localStorage.getItem("mailKaroSavedTemplates") || "[]"
+    );
     saved.forEach((t, i) => {
       const option = document.createElement("option");
       option.value = `saved_${i}`;
@@ -211,13 +212,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   loadSavedTemplates();
 
-  // templateSelect behavior
   if (templateSelect) {
     templateSelect.addEventListener("change", () => {
       const val = templateSelect.value || "";
       if (val.startsWith("saved_")) {
-        const opt = templateSelect.options[templateSelect.selectedIndex];
-        promptInput.value = (opt && opt.dataset && opt.dataset.content) || "";
+        const opt =
+          templateSelect.options[templateSelect.selectedIndex];
+        promptInput.value =
+          (opt && opt.dataset && opt.dataset.content) || "";
       } else if (templateSkeletons[val]) {
         promptInput.value = templateSkeletons[val];
       } else {
@@ -227,72 +229,115 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // save template
   if (saveTemplateBtn) {
     saveTemplateBtn.addEventListener("click", () => {
       const text = promptInput.value.trim();
       if (!text) {
         saveTemplateBtn.innerText = "⚠ Write something";
-        setTimeout(() => (saveTemplateBtn.innerText = "💾 Save Template"), 1200);
+        setTimeout(
+          () => (saveTemplateBtn.innerText = "💾 Save Template"),
+          1200
+        );
         return;
       }
       const name = prompt("Template name?");
       if (!name) return;
-      const saved = JSON.parse(localStorage.getItem("mailKaroSavedTemplates") || "[]");
+      const saved = JSON.parse(
+        localStorage.getItem("mailKaroSavedTemplates") || "[]"
+      );
       saved.push({ name, content: text });
-      localStorage.setItem("mailKaroSavedTemplates", JSON.stringify(saved));
+      localStorage.setItem(
+        "mailKaroSavedTemplates",
+        JSON.stringify(saved)
+      );
       loadSavedTemplates();
       saveTemplateBtn.innerText = "✓ Saved!";
-      setTimeout(() => (saveTemplateBtn.innerText = "💾 Save Template"), 1000);
+      setTimeout(
+        () => (saveTemplateBtn.innerText = "💾 Save Template"),
+        1000
+      );
     });
   }
 
-  // counter
   const charCount = $("charCount");
   const wordCount = $("wordCount");
   promptInput.addEventListener("input", () => {
-    if (charCount) charCount.innerText = `${promptInput.value.length} chars`;
-    if (wordCount) wordCount.innerText = `${promptInput.value.trim().split(/\s+/).filter(Boolean).length} words`;
+    if (charCount)
+      charCount.innerText = `${promptInput.value.length} chars`;
+    if (wordCount)
+      wordCount.innerText = `${
+        promptInput.value.trim().split(/\s+/).filter(Boolean).length
+      } words`;
     promptInput.style.height = "auto";
-    promptInput.style.height = Math.min(promptInput.scrollHeight, 250) + "px";
+    promptInput.style.height =
+      Math.min(promptInput.scrollHeight, 250) + "px";
     generateBtn.innerText = "⚡ Generate";
   });
 
-  /* =============================
-   MOBILE TEXTAREA AUTO-RESIZE FIX
-============================= */
-function autoResize() {
-  promptInput.style.height = "auto";
-  promptInput.style.height = Math.min(promptInput.scrollHeight, 250) + "px";
-}
-
-// Normal desktop + android fix
-promptInput.addEventListener("input", autoResize);
-
-// Mobile Safari fix – force update every few ms while typing
-let lastVal = "";
-setInterval(() => {
-  if (promptInput.value !== lastVal) {
-    lastVal = promptInput.value;
-    autoResize();
+  function autoResize() {
+    promptInput.style.height = "auto";
+    promptInput.style.height =
+      Math.min(promptInput.scrollHeight, 250) + "px";
   }
-}, 200);
 
-  // enable/disable
+  promptInput.addEventListener("input", autoResize);
+
+  let lastVal = "";
+  setInterval(() => {
+    if (promptInput.value !== lastVal) {
+      lastVal = promptInput.value;
+      autoResize();
+    }
+  }, 200);
+
   function disableAll() {
-    const els = [generateBtn, regenerateBtn, promptInput, toneSelect, lengthSelect, templateSelect, copyBtn, resetBtn, saveTemplateBtn, openWizardBtn];
-    els.forEach(el => { if (el) el.disabled = true; });
+    const els = [
+      generateBtn,
+      regenerateBtn,
+      promptInput,
+      toneSelect,
+      lengthSelect,
+      templateSelect,
+      languageSelect,
+      copyBtn,
+      resetBtn,
+      saveTemplateBtn,
+      openWizardBtn
+    ];
+    els.forEach(el => {
+      if (el) el.disabled = true;
+    });
     if (generateBtn) generateBtn.style.cursor = "not-allowed";
   }
   function enableAll() {
-    const els = [generateBtn, regenerateBtn, promptInput, toneSelect, lengthSelect, templateSelect, copyBtn, resetBtn, saveTemplateBtn, openWizardBtn];
-    els.forEach(el => { if (el) el.disabled = false; });
+    const els = [
+      generateBtn,
+      regenerateBtn,
+      promptInput,
+      toneSelect,
+      lengthSelect,
+      templateSelect,
+      languageSelect,
+      copyBtn,
+      resetBtn,
+      saveTemplateBtn,
+      openWizardBtn
+    ];
+    els.forEach(el => {
+      if (el) el.disabled = false;
+    });
     if (generateBtn) generateBtn.style.cursor = "pointer";
   }
 
-  // generate function
+  // -----------------------------------------------------------------
+  // ⭐⭐⭐ FINAL UPDATED GENERATE FUNCTION WITH LANGUAGE SUPPORT ⭐⭐⭐
+  // -----------------------------------------------------------------
+
   async function generateEmail(customPrompt = null, customTone = null) {
-    const userPrompt = (customPrompt !== null && customPrompt !== undefined) ? customPrompt : promptInput.value.trim();
+    const userPrompt =
+      customPrompt !== null && customPrompt !== undefined
+        ? customPrompt
+        : promptInput.value.trim();
     const tone = customTone || (toneSelect ? toneSelect.value : "formal");
 
     lastPrompt = userPrompt;
@@ -303,16 +348,23 @@ setInterval(() => {
       return;
     }
 
-    // Length instruction
-let lengthInstruction = "";
-if (lengthSelect) {
-  if (lengthSelect.value === "small") lengthInstruction = " Keep the email around 100 to 150 words.";
-  if (lengthSelect.value === "medium") lengthInstruction = " Keep the email around 150 to 200 words.";
-  if (lengthSelect.value === "large") lengthInstruction = " Keep the email around 200 to 250 words.";
-}
+    let lengthInstruction = "";
+    if (lengthSelect) {
+      if (lengthSelect.value === "small")
+        lengthInstruction =
+          " Keep the email around 100 to 150 words.";
+      if (lengthSelect.value === "medium")
+        lengthInstruction =
+          " Keep the email around 150 to 200 words.";
+      if (lengthSelect.value === "large")
+        lengthInstruction =
+          " Keep the email around 200 to 250 words.";
+    }
 
-const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruction}`;
+    // ⭐ NEW: Add language instruction
+    const lang = languageSelect ? languageSelect.value : "english";
 
+    const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruction} Write the email in ${lang} language.`;
 
     disableAll();
     if (generateBtn) generateBtn.innerText = "🔄 Generating…";
@@ -322,11 +374,14 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
     }
 
     try {
-      const res = await fetch("https://mail-karo.onrender.com/api/generate-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: finalPrompt })
-      });
+      const res = await fetch(
+        "https://mail-karo.onrender.com/api/generate-email",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: finalPrompt })
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "API error");
       if (outputText) {
@@ -337,7 +392,8 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
     } catch (err) {
       if (outputText) {
         outputText.classList.remove("loading");
-        outputText.innerText = "⚠️ " + (err.message || "Unknown error");
+        outputText.innerText =
+          "⚠️ " + (err.message || "Unknown error");
       }
       if (generateBtn) generateBtn.innerText = "❌ Try Again";
       console.error(err);
@@ -346,37 +402,48 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
     }
   }
 
-  if (generateBtn) generateBtn.addEventListener("click", () => generateEmail());
-  if (regenerateBtn) regenerateBtn.addEventListener("click", () => { if (lastPrompt) generateEmail(lastPrompt, lastTone); });
-  if (copyBtn) copyBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(outputText.innerText || "");
-    copyBtn.innerText = "✓ Copied";
-    setTimeout(() => (copyBtn.innerText = "📋 Copy"), 1200);
-  });
-  if (resetBtn) resetBtn.addEventListener("click", () => {
-    promptInput.value = "";
-    if (outputText) outputText.innerText = "Your AI-generated email will appear here...";
-    if (charCount) charCount.innerText = "0 chars";
-    if (wordCount) wordCount.innerText = "0 words";
-    promptInput.style.height = "50px";
-  });
+  if (generateBtn)
+    generateBtn.addEventListener("click", () => generateEmail());
+  if (regenerateBtn)
+    regenerateBtn.addEventListener("click", () => {
+      if (lastPrompt) generateEmail(lastPrompt, lastTone);
+    });
+  if (copyBtn)
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(outputText.innerText || "");
+      copyBtn.innerText = "✓ Copied";
+      setTimeout(() => (copyBtn.innerText = "📋 Copy"), 1200);
+    });
+  if (resetBtn)
+    resetBtn.addEventListener("click", () => {
+      promptInput.value = "";
+      if (outputText)
+        outputText.innerText =
+          "Your AI-generated email will appear here...";
+      if (charCount) charCount.innerText = "0 chars";
+      if (wordCount) wordCount.innerText = "0 words";
+      promptInput.style.height = "50px";
+    });
 
-  // ---------- WIZARD (Option-C Ultra) ----------
-  // We'll group fields into steps (maxFieldsPerStep). Each step shows multiple fields (grid).
-  const maxFieldsPerStep = 4; // shows up to 4 fields per step (2-column on wide screens)
+  // ------------------------------------------------------------
+  // ⭐⭐⭐ WIZARD SECTION (UNCHANGED — LEFT EXACTLY SAME) ⭐⭐⭐
+  // ------------------------------------------------------------
+
+  const maxFieldsPerStep = 4;
   let wizardState = {
     templateKey: null,
-    steps: [], // array of arrays of field objects
+    steps: [],
     stepIndex: 0,
-    answers: {} // key -> value
+    answers: {}
   };
 
-  // helper to open wizard: builds steps from templateFields
   function openWizard() {
     if (!openWizardBtn) return;
     const key = templateSelect ? templateSelect.value : null;
     if (!key || !templateFields[key]) {
-      alert("Wizard is not available for this template yet. Please choose a template that supports the wizard.");
+      alert(
+        "Wizard is not available for this template yet. Please choose a template that supports the wizard."
+      );
       return;
     }
 
@@ -385,14 +452,14 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
     wizardState.templateKey = key;
     wizardState.steps = grouped;
     wizardState.stepIndex = 0;
-    wizardState.answers = {}; // reset
+    wizardState.answers = {};
 
     renderWizardStep();
-    if (wizardModal) wizardModal.setAttribute("aria-hidden", "false");
+    if (wizardModal)
+      wizardModal.setAttribute("aria-hidden", "false");
     document.documentElement.style.overflow = "hidden";
   }
 
-  // render current step (multiple fields)
   function renderWizardStep() {
     if (!wizardStepWrap) return;
     wizardStepWrap.innerHTML = "";
@@ -402,19 +469,18 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
 
     const stepFields = steps[idx];
 
-    // progress text
-    if (wizardProgressText) wizardProgressText.innerText = `Step ${idx + 1} of ${steps.length}`;
+    if (wizardProgressText)
+      wizardProgressText.innerText = `Step ${idx + 1} of ${
+        steps.length
+      }`;
 
-    // grid container (responsive)
     const grid = document.createElement("div");
     grid.className = "wizard-grid";
-    // Use inline grid style so no extra CSS file needed:
-    const cols = window.innerWidth > 680 ? 2 : 1; // 2 columns on wider screens
+    const cols = window.innerWidth > 680 ? 2 : 1;
     grid.style.display = "grid";
     grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     grid.style.gap = "12px";
 
-    // Create inputs for each field in this step
     stepFields.forEach(field => {
       const wrap = document.createElement("div");
       wrap.className = "wizard-field";
@@ -423,9 +489,27 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
       label.innerText = field.label;
       wrap.appendChild(label);
 
-      // Choose textarea for long prompts by heuristic (keywords)
-      const longKeys = ["highlights","why","example","reason","details","questions","agenda","steps","improvements","positives","topBenefits","yourQuestions","resumeHighlights","whatHappened","howYouWillFixIt","errorDetails"];
-      const isLong = longKeys.some(k => field.key.toLowerCase().includes(k));
+      const longKeys = [
+        "highlights",
+        "why",
+        "example",
+        "reason",
+        "details",
+        "questions",
+        "agenda",
+        "steps",
+        "improvements",
+        "positives",
+        "topBenefits",
+        "yourQuestions",
+        "resumeHighlights",
+        "whatHappened",
+        "howYouWillFixIt",
+        "errorDetails"
+      ];
+      const isLong = longKeys.some(k =>
+        field.key.toLowerCase().includes(k)
+      );
 
       let inputEl;
       if (isLong) {
@@ -438,12 +522,8 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
       inputEl.id = `wiz_${field.key}`;
       inputEl.value = wizardState.answers[field.key] || "";
       inputEl.placeholder = field.placeholder || "";
-
-      // accessibility
       inputEl.setAttribute("aria-label", field.label);
-
-      // simple Enter behavior: if input is not textarea, Enter moves to next input / step
-      inputEl.addEventListener("keydown", (e) => {
+      inputEl.addEventListener("keydown", e => {
         if (e.key === "Enter" && inputEl.tagName !== "TEXTAREA") {
           e.preventDefault();
           focusNextFieldOrAdvance();
@@ -452,7 +532,6 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
 
       wrap.appendChild(inputEl);
 
-      // optional note (if provided)
       if (field.optional) {
         const note = document.createElement("div");
         note.className = "wizard-note";
@@ -465,25 +544,29 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
 
     wizardStepWrap.appendChild(grid);
 
-    // Buttons state
     if (wizardBackBtn) wizardBackBtn.disabled = idx === 0;
-    if (wizardNextBtn) wizardNextBtn.style.display = idx < steps.length - 1 ? "inline-flex" : "none";
-    if (wizardFinishBtn) wizardFinishBtn.style.display = idx === steps.length - 1 ? "inline-flex" : "none";
+    if (wizardNextBtn)
+      wizardNextBtn.style.display =
+        idx < steps.length - 1 ? "inline-flex" : "none";
+    if (wizardFinishBtn)
+      wizardFinishBtn.style.display =
+        idx === steps.length - 1 ? "inline-flex" : "none";
 
-    // focus first input
-    const firstInput = wizardStepWrap.querySelector("input, textarea");
+    const firstInput = wizardStepWrap.querySelector(
+      "input, textarea"
+    );
     if (firstInput) setTimeout(() => firstInput.focus(), 50);
   }
 
-  // helper: focus next input in step or advance
   function focusNextFieldOrAdvance() {
-    const inputs = Array.from(wizardStepWrap.querySelectorAll("input, textarea"));
+    const inputs = Array.from(
+      wizardStepWrap.querySelectorAll("input, textarea")
+    );
     const active = document.activeElement;
     const idx = inputs.indexOf(active);
     if (idx >= 0 && idx < inputs.length - 1) {
       inputs[idx + 1].focus();
     } else {
-      // at end -> save and advance
       saveCurrentStep();
       if (wizardState.stepIndex < wizardState.steps.length - 1) {
         wizardState.stepIndex++;
@@ -494,82 +577,107 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
     }
   }
 
-  // save values for current step fields
   function saveCurrentStep() {
-    const stepFields = wizardState.steps[wizardState.stepIndex] || [];
+    const stepFields =
+      wizardState.steps[wizardState.stepIndex] || [];
     stepFields.forEach(f => {
       const el = document.getElementById(`wiz_${f.key}`);
       if (el) wizardState.answers[f.key] = el.value.trim();
     });
   }
 
-  // navigation
-  if (wizardNextBtn) wizardNextBtn.addEventListener("click", () => {
-    saveCurrentStep();
-    if (wizardState.stepIndex < wizardState.steps.length - 1) {
-      wizardState.stepIndex++;
-      renderWizardStep();
-    }
-  });
-  if (wizardBackBtn) wizardBackBtn.addEventListener("click", () => {
-    saveCurrentStep();
-    if (wizardState.stepIndex > 0) {
-      wizardState.stepIndex--;
-      renderWizardStep();
-    }
-  });
+  if (wizardNextBtn)
+    wizardNextBtn.addEventListener("click", () => {
+      saveCurrentStep();
+      if (wizardState.stepIndex < wizardState.steps.length - 1) {
+        wizardState.stepIndex++;
+        renderWizardStep();
+      }
+    });
 
-  // finish -> build final skeleton and inject into textarea
+  if (wizardBackBtn)
+    wizardBackBtn.addEventListener("click", () => {
+      saveCurrentStep();
+      if (wizardState.stepIndex > 0) {
+        wizardState.stepIndex--;
+        renderWizardStep();
+      }
+    });
+
   function finishWizard() {
     saveCurrentStep();
     const key = wizardState.templateKey;
     if (!key) return closeWizardSafely();
     let final = templateSkeletons[key] || "";
-    // replace all placeholders (global)
     Object.entries(wizardState.answers).forEach(([k, v]) => {
       const re = new RegExp(`{{\\s*${k}\\s*}}`, "g");
       final = final.replace(re, v || "");
     });
-    // remove any leftover placeholders gracefully
-    final = final.replace(/{{\s*[\w]+\s*}}/g, "").replace(/\n{3,}/g, "\n\n").trim();
+    final = final
+      .replace(/{{\s*[\w]+\s*}}/g, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
 
     promptInput.value = final;
     promptInput.dispatchEvent(new Event("input"));
     closeWizardSafely();
   }
 
-  if (wizardFinishBtn) wizardFinishBtn.addEventListener("click", finishWizard);
+  if (wizardFinishBtn)
+    wizardFinishBtn.addEventListener("click", finishWizard);
 
-  // open/close handlers
-  if (openWizardBtn) openWizardBtn.addEventListener("click", () => {
-    // before open, ensure template exists and has fields
-    const key = templateSelect ? templateSelect.value : null;
-    if (!key || !templateFields[key]) {
-      alert("Wizard is available only for built-in templates. Please select one of the templates (e.g., Complaint, Job, Follow-Up).");
-      return;
-    }
-    openWizard();
-  });
-  if (closeWizardBtn) closeWizardBtn.addEventListener("click", closeWizardSafely);
-  if (wizardModal) wizardModal.addEventListener("click", (e) => { if (e.target === wizardModal) closeWizardSafely(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && wizardModal && wizardModal.getAttribute("aria-hidden")==="false") closeWizardSafely(); });
+  if (openWizardBtn)
+    openWizardBtn.addEventListener("click", () => {
+      const key = templateSelect ? templateSelect.value : null;
+      if (!key || !templateFields[key]) {
+        alert(
+          "Wizard is available only for built-in templates. Please select one of the templates (e.g., Complaint, Job, Follow-Up)."
+        );
+        return;
+      }
+      openWizard();
+    });
 
-  function closeWizardSafely() {
-    if (wizardModal) wizardModal.setAttribute("aria-hidden", "true");
-    wizardStepWrap && (wizardStepWrap.innerHTML = "");
-    wizardState = { templateKey: null, steps: [], stepIndex: 0, answers: {} };
-    document.documentElement.style.overflow = "";
-  }
+  if (closeWizardBtn)
+    closeWizardBtn.addEventListener("click", closeWizardSafely);
 
-  // ---------- helper to finish if template changed mid-wizard ----------
-  // optional: if user changes template while wizard open, we close wizard
-  if (templateSelect) templateSelect.addEventListener("change", () => {
-    if (wizardModal && wizardModal.getAttribute("aria-hidden")==="false") {
+  if (wizardModal)
+    wizardModal.addEventListener("click", e => {
+      if (e.target === wizardModal) closeWizardSafely();
+    });
+
+  document.addEventListener("keydown", e => {
+    if (
+      e.key === "Escape" &&
+      wizardModal &&
+      wizardModal.getAttribute("aria-hidden") === "false"
+    ) {
       closeWizardSafely();
     }
   });
 
-  // ---------- spinner style (unique var) ----------
+  function closeWizardSafely() {
+    if (wizardModal) wizardModal.setAttribute("aria-hidden", "true");
+    wizardStepWrap && (wizardStepWrap.innerHTML = "");
+    wizardState = {
+      templateKey: null,
+      steps: [],
+      stepIndex: 0,
+      answers: {}
+    };
+    document.documentElement.style.overflow = "";
+  }
+
+  if (templateSelect)
+    templateSelect.addEventListener("change", () => {
+      if (
+        wizardModal &&
+        wizardModal.getAttribute("aria-hidden") === "false"
+      ) {
+        closeWizardSafely();
+      }
+    });
+
   const spinnerStyleFinal = document.createElement("style");
   spinnerStyleFinal.id = "spinnerStyleFinal";
   spinnerStyleFinal.innerHTML = `
@@ -585,18 +693,23 @@ const finalPrompt = `${userPrompt}. Write this in a ${tone} tone.${lengthInstruc
   @keyframes spin {to{transform:rotate(360deg);}}
   .loading {animation:blink 1s infinite;}
   @keyframes blink {0%,100%{opacity:.5;}50%{opacity:1;}}
-  /* small grid tweaks for wizard fields (kept inline here for safety) */
-  .wizard-grid .wizard-field label { display:block; margin-bottom:6px; font-weight:600; color:inherit; }
-  .wizard-grid .wizard-field input, .wizard-grid .wizard-field textarea { width:100%; box-sizing:border-box; }
+  .wizard-grid .wizard-field label { 
+    display:block; 
+    margin-bottom:6px; 
+    font-weight:600; 
+    color:inherit; 
+  }
+  .wizard-grid .wizard-field input, 
+  .wizard-grid .wizard-field textarea { 
+    width:100%; 
+    box-sizing:border-box; 
+  }
   `;
-  // avoid duplicate insertion
-  if (!document.getElementById(spinnerStyleFinal.id)) document.head.appendChild(spinnerStyleFinal);
+  if (!document.getElementById(spinnerStyleFinal.id))
+    document.head.appendChild(spinnerStyleFinal);
 
-  // ---------- safe init complete ----------
-  // ensure saved templates loaded already
   loadSavedTemplates();
 
-  // small accessibility: focus first control on load
   setTimeout(() => {
     if (templateSelect) templateSelect.tabIndex = 0;
   }, 200);
