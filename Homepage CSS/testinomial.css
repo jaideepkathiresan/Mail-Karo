@@ -1,0 +1,195 @@
+/* ===== Testimonials Section ===== */
+
+.mk-testimonials {
+  padding: 80px 20px;
+  background: #000;
+  color: #fff;
+  text-align: center;
+}
+
+.mk-header {
+  max-width: 650px;
+  margin: 0 auto 50px;
+}
+
+.mk-tag {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid #ffd700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffd700;
+}
+
+.mk-header h2 {
+  margin-top: 16px;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.mk-header p {
+  margin-top: 10px;
+  font-size: 15px;
+  color: #bbbbbb;
+}
+
+/* ===== Slider ===== */
+
+.mk-slider-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 !important;
+  overflow: hidden;
+  position: relative;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.mk-slider {
+  display: flex;
+  gap: 24px !important;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Card base */
+
+.mk-card {
+  position: relative;
+  flex: 0 0 70%;
+  padding: 28px 26px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  text-align: left;
+  transform: scale(0.88);
+  opacity: 0.35;
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease,
+    border-color 0.4s ease,
+    background 0.4s ease,
+    filter 0.4s ease;
+}
+
+/* Center focused card */
+
+.mk-card.active {
+  transform: scale(1);
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Side cards darker */
+
+.mk-card.side {
+  opacity: 0.35;
+  filter: brightness(0.8);
+}
+
+/* Text */
+
+.mk-text {
+  font-size: 16px;
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+
+/* ===== NEW UPDATED LAYOUT ===== */
+
+/* Bottom row: user left, stars right */
+.mk-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+}
+
+/* User section */
+.mk-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mk-user-info img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;      /* circle */
+  border: 2px solid #ffd700;
+  object-fit: cover;
+}
+
+.mk-user-info h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #ffd700;
+}
+
+.mk-user-info span {
+  font-size: 13px;
+  color: #cccccc;
+}
+
+/* Stars right side */
+.mk-stars {
+  font-size: 22px;         /* bigger stars */
+  color: #ffd700;
+  letter-spacing: 3px;
+  white-space: nowrap;
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+/* Controls */
+
+.mk-controls {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.mk-controls button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #ffd700;
+  background: transparent;
+  color: #ffd700;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.mk-controls button:hover {
+  background: #ffd700;
+  color: #000;
+  transform: translateY(-1px);
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 900px) {
+  .mk-card {
+    flex: 0 0 80%;
+  }
+}
+
+@media (max-width: 600px) {
+  .mk-testimonials {
+    padding: 60px 16px;
+  }
+  .mk-card {
+    flex: 0 0 90%;
+    padding: 22px 20px;
+  }
+  .mk-stars {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+}
