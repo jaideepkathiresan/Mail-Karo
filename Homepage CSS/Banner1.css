@@ -1,4 +1,4 @@
-/* 🔥 Banner Section Matching Hero Theme */
+/* 🔥 HERO SECTION */
 .mk-hero {
     width: 100%;
     padding: 5rem 1rem;
@@ -8,17 +8,32 @@
     overflow: hidden;
 }
 
-/* Fade animation */
+/* MAIN CONTAINER */
 .mk-hero-content {
     max-width: 1200px;
     margin: auto;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 3.5rem;
     animation: fadeInUp 1s ease;
 }
 
-/* Image Glow */
+/* Flex items equal width */
+.mk-hero-image,
+.mk-hero-text {
+    flex: 1;
+}
+
+/* Default order (desktop) */
+.mk-hero-image {
+    order: 1;
+}
+.mk-hero-text {
+    order: 2;
+}
+
+/* IMAGE */
 .mk-hero-image img {
     width: 100%;
     max-width: 430px;
@@ -30,7 +45,7 @@
     transform: scale(1.05);
 }
 
-/* TEXT */
+/* TEXT CONTENT */
 .mk-hero-text h1 {
     font-size: 2.7rem;
     font-weight: 700;
@@ -62,7 +77,7 @@
     text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
 }
 
-/* CTA BUTTON (matches hero-btn) */
+/* CTA BUTTON */
 .mk-btn {
   display: inline-block;
   margin-top: 30px;
@@ -81,21 +96,37 @@
   transform: translateY(-4px);
 }
 
-/* RESPONSIVE */
+/* ------------------------------------------------------ */
+/* 🔥🔥 RESPONSIVE — IMAGE ALWAYS TOP ON MOBILE 🔥🔥 */
+/* ------------------------------------------------------ */
+
 @media (max-width: 850px) {
+
     .mk-hero-content {
-        flex-direction: column-reverse;
+        flex-direction: column; /* normal column */
         text-align: center;
         gap: 2.5rem;
     }
 
-    .mk-hero-text h1 {
-        font-size: 2.2rem;
+    /* FORCE ORDER — image always top */
+    .mk-hero-image {
+        order: 1 !important;
+    }
+
+    .mk-hero-text {
+        order: 2 !important;
     }
 
     .mk-hero-image img {
         max-width: 300px;
+        width: 100%;
         margin: auto;
+        display: block;
+    }
+
+    .mk-hero-text {
+        width: 100%;
+        padding: 0 15px;
     }
 
     .mk-badges {
@@ -104,7 +135,7 @@
     }
 }
 
-/* Light Mode Fix */
+/* LIGHT MODE FIX */
 [data-theme="light"] .mk-hero-text h1 {
     color: #000;
     text-shadow: none;
