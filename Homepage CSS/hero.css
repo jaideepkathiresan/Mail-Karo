@@ -4,7 +4,6 @@
 .hero-wrapper {
   width: 100%;
   position: relative;
-  /* Dark mode */
   background: radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.05), transparent 60%),
               radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.07), transparent 60%);
 }
@@ -14,22 +13,16 @@
               radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.1), transparent 60%);
 }
 
+/* 🔥 HERO SECTION CLEANED */
 .hero {
-  width: 100%; 
-  min-height: 90vh;
-  /* Background removed -> handled by wrapper */
+  width: 100%;
+  padding: 80px 20px 60px;  /* balanced spacing */
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* content upar rahe */
   justify-content: center;
-
-  /* Optimized padding */
-  padding: 30px 20px;
-
   position: relative;
   overflow: hidden;
 }
-
-
 
 /* Container */
 .hero-container {
@@ -58,20 +51,11 @@
   min-height: 65px;
 }
 
-[data-theme="light"] .hero-title {
-  text-shadow: 0 0 8px rgba(212, 175, 55, 0.15);
-}
-
 .hero-title span {
   color: var(--accent);
   text-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
 }
 
-[data-theme="light"] .hero-title span {
-  text-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
-}
-
-/* Subtitle FIXED */
 .hero-subtitle {
   margin-top: 20px;
   font-size: 1.1rem;
@@ -101,28 +85,20 @@
 /* Right Image */
 .hero-image {
   flex: 1;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* LOGO FIX */
 .mailkaro-logo {
   width: 80%;
   max-width: 380px;
   object-fit: contain;
   animation: logoFloat 5s ease-in-out infinite;
-  z-index: 3;
-  position: relative;
   filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.35));
   opacity: 0;
   transform: scale(0.95);
   transition: opacity 1.2s ease, transform 1.2s ease;
-}
-
-[data-theme="light"] .mailkaro-logo {
-  filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.2));
 }
 
 /* Animations */
@@ -151,7 +127,8 @@
 /* Responsive */
 @media (max-width: 900px) {
   .hero {
-    padding: 20px 15px; /* Mobile perfect fit */
+    padding: 50px 15px 40px;
+    align-items: center;
   }
 
   .hero-container {
@@ -177,21 +154,17 @@
   }
 }
 
-/* Light mode visibility fix for hero section */
+/* Light mode fixes */
 [data-theme="light"] .hero-title {
   color: #000;
 }
 
 [data-theme="light"] .hero-title span {
-  color: #B8941F; /* darker accent */
+  color: #B8941F;
 }
 
 [data-theme="light"] .hero-subtitle {
   color: #333 !important;
-}
-
-[data-theme="light"] .hero-subtitle strong {
-  color: #000;
 }
 
 [data-theme="light"] .hero-btn {
